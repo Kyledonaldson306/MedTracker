@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getMedications, deleteMedication } from '../services/api';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { getMedications, deleteMedication } from '../services/api';
+import NotificationSettings from '../components/NotificationSettings';
+import { checkUpcomingMedications } from '../services/notificationService';
 
 function Home() {
   const [medications, setMedications] = useState([]);
@@ -20,6 +25,21 @@ function Home() {
       setLoading(false);
     }
   };
+
+  // Check for medication reminders every minute
+  useEffect(() => {
+    if (medications.length > 0) {
+      // Check immediately
+      checkUpcomingMedications(medications);
+      
+      // Then check every minute
+      const interval = setInterval(() => {
+        checkUpcomingMedications(medications);
+      }, 60000); // 60000ms = 1 minute
+
+      return () => clearInterval(interval);
+    }
+  }, [medications]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this medication?')) {
@@ -42,7 +62,7 @@ function Home() {
         <h1>MedTracker</h1>
         <p>Your Personal Medication Management System</p>
       </div>
-
+    <NotificationSettings />
       <div className="actions">
         <Link to="/add" className="btn btn-primary">+ Add New Medication</Link>
         <Link to="/schedule" className="btn btn-secondary">View Today's Schedule</Link>
