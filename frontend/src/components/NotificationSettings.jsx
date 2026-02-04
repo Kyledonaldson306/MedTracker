@@ -4,6 +4,7 @@ import { requestNotificationPermission, checkNotificationSupport } from '../serv
 function NotificationSettings() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [notificationsSupported, setNotificationsSupported] = useState(true);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
     // Check if notifications are supported
@@ -21,10 +22,18 @@ function NotificationSettings() {
     setNotificationsEnabled(granted);
     
     if (granted) {
-      alert('Notifications enabled! You will receive reminders when it\'s time to take your medications.');
+      setShowSuccessMessage(true);
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 5000);
     } else {
       alert('Notifications were denied. You can enable them later in your browser settings.');
     }
+  };
+
+  const handleDisableNotifications = () => {
+    alert('To disable notifications, please go to your browser settings:\n\nChrome/Edge: Settings → Privacy and Security → Site Settings → Notifications\n\nSafari: Preferences → Websites → Notifications');
   };
 
   if (!notificationsSupported) {
@@ -35,20 +44,30 @@ function NotificationSettings() {
     );
   }
 
+  // Show success message temporarily
+  if (showSuccessMessage) {
+    return (
+      <div className="notification-banner success">
+        <p>✅ Notifications enabled! You'll receive reminders for your medications.</p>
+      </div>
+    );
+  }
+
   if (!notificationsEnabled) {
     return (
-      <div className="notification-banner">
-        <p>🔔 Enable notifications to get reminders when it's time to take your medications</p>
-        <button onClick={handleEnableNotifications} className="btn btn-primary btn-small">
-          Enable Notifications
+      <div className="notification-settings-inline">
+        <button onClick={handleEnableNotifications} className="btn btn-notification">
+          🔔 Enable Notifications
         </button>
       </div>
     );
   }
 
   return (
-    <div className="notification-banner success">
-      <p>✅ Notifications are enabled! You'll receive reminders for your medications.</p>
+    <div className="notification-settings-inline">
+      <button onClick={handleDisableNotifications} className="btn btn-notification-disable">
+        🔕 Disable Notifications
+      </button>
     </div>
   );
 }

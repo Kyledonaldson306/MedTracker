@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getMedications, deleteMedication } from '../services/api';
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { getMedications, deleteMedication } from '../services/api';
 import NotificationSettings from '../components/NotificationSettings';
 import { checkUpcomingMedications } from '../services/notificationService';
 
-function Home() {
+function Home({ onLogout }) {
   const [medications, setMedications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -59,13 +56,17 @@ function Home() {
   return (
     <div className="container">
       <div className="header">
-        <h1>MedTracker</h1>
+        <div className="header-top">
+          <h1>MedTracker</h1>
+          <button onClick={onLogout} className="btn btn-small btn-logout">Logout</button>
+        </div>
         <p>Your Personal Medication Management System</p>
       </div>
-    <NotificationSettings />
+  
       <div className="actions">
         <Link to="/add" className="btn btn-primary">+ Add New Medication</Link>
         <Link to="/schedule" className="btn btn-secondary">View Today's Schedule</Link>
+        <NotificationSettings />
       </div>
 
       <div className="medications-list">

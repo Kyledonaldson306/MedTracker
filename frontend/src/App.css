@@ -309,7 +309,7 @@ body {
   .form-actions {
     flex-direction: column;
   }
-  /* Notification Banner */
+/* Notification Banner */
 .notification-banner {
   background: #e3f2fd;
   border: 2px solid #2196f3;
@@ -320,6 +320,18 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 15px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .notification-banner p {
@@ -347,6 +359,29 @@ body {
   color: #e65100;
 }
 
+/* Inline notification settings (in actions bar) */
+.notification-settings-inline {
+  display: inline-block;
+}
+
+.btn-notification {
+  background: #4caf50;
+  color: white;
+}
+
+.btn-notification:hover {
+  background: #45a049;
+}
+
+.btn-notification-disable {
+  background: #ff9800;
+  color: white;
+}
+
+.btn-notification-disable:hover {
+  background: #e68900;
+}
+
 /* Responsive notification banner */
 @media (max-width: 768px) {
   .notification-banner {
@@ -354,4 +389,53 @@ body {
     text-align: center;
   }
 }
+
+/* Auth Pages */
+.auth-redirect {
+  text-align: center;
+  margin-top: 20px;
+  color: #666;
+}
+
+.auth-redirect a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-redirect a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Header top with logout */
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-top h1 {
+  margin: 0;
+}
+
+.btn-logout {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-logout:hover {
+  background: #c82333;
+}
+
 }
