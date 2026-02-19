@@ -36,24 +36,18 @@ function AddMedication() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Filter out empty times
-    const filteredTimes = formData.times.filter(time => time.trim() !== '');
-    
-    if (filteredTimes.length === 0) {
-      alert('Please add at least one time');
-      return;
-    }
-
     try {
-      await createMedication({
-        ...formData,
-        times: filteredTimes
-      });
+      const data = await createMedication(formData);
+      
+      // Check for new badges
+      if (data.newBadges && data.newBadges.length > 0) {
+        localStorage.setItem('pending_badges', JSON.stringify(data.newBadges));
+      }
+      
       navigate('/');
     } catch (error) {
       console.error('Error creating medication:', error);
-      alert('Error creating medication. Please try again.');
+      alert('Failed to create medication');
     }
   };
 

@@ -6,6 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const authRoutes = require('./authRoutes');
 const jwt = require('jsonwebtoken');
+const badgeService = require('./badgeService');
 
 const JWT_SECRET = 'medtracker_secret_key_change_in_production';
 
@@ -90,17 +91,37 @@ app.post('/api/medications', verifyToken, (req, res) => {
       res.status(500).json({ error: err.message });
       return;
     }
-    res.json({
-      message: 'Medication created successfully',
-      medication: {
-        id: this.lastID,
-        name,
-        dosage,
-        frequency,
-        times,
-        notes,
-        user_id: req.userId
+
+    const newMedicationId = this.lastID;
+
+    // Count total medications for this user
+    db.get('SELECT COUNT(*) as count FROM medications WHERE user_id = ?', [req.userId], (err, result) => {
+      if (err) {
+        console.error('Error counting medications:', err);
       }
+
+      const medicationCount = result ? result.count : 0;
+
+      // Check for medication badges
+      badgeService.checkMedicationBadges(req.userId, medicationCount, (err, newBadges) => {
+        if (err) {
+          console.error('Error checking medication badges:', err);
+        }
+
+        res.json({
+          message: 'Medication created successfully',
+          medication: {
+            id: newMedicationId,
+            name,
+            dosage,
+            frequency,
+            times,
+            notes,
+            user_id: req.userId
+          },
+          newBadges: newBadges || []
+        });
+      });
     });
   });
 });
@@ -162,6 +183,27 @@ app.get('/api/schedule/today', verifyToken, (req, res) => {
     res.json({ schedule });
   });
 });
+
+// Get user's badges
+app.get('/api/badges', verifyToken, (req, res) => {
+  badgeService.getUserBadges(req.userId, (err, badges) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json({ badges });
+  });
+});
+
+// Get user's streak
+app.get('/api/streak', verifyToken, (req, res) => {
+  badgeService.getUserStreak(req.userId, (err, streak) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json({ streak: streak || { current_streak: 0, longest_streak: 0, total_logins: 0 } });
+  });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

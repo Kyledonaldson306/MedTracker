@@ -67,6 +67,42 @@ function initializeDatabase() {
       console.log('Users table ready');
     }
   });
+  // Badges table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS badges (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      badge_type TEXT NOT NULL,
+      badge_name TEXT NOT NULL,
+      earned_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `, (err) => {
+    if (err) {
+      console.error('Error creating badges table:', err.message);
+    } else {
+      console.log('Badges table ready');
+    }
+  });
+
+  // Login streaks table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS login_streaks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL UNIQUE,
+      current_streak INTEGER DEFAULT 0,
+      longest_streak INTEGER DEFAULT 0,
+      last_login_date DATE,
+      total_logins INTEGER DEFAULT 0,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `, (err) => {
+    if (err) {
+      console.error('Error creating login_streaks table:', err.message);
+    } else {
+      console.log('Login streaks table ready');
+    }
+  });
 }
 
 module.exports = db;

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { register } from '../services/api';
 
-function Register({ onRegister }) {
+function Register({ onLogin }) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ username: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
@@ -35,11 +35,23 @@ function Register({ onRegister }) {
         email: formData.email,
         password: formData.password
       });
+      
+      console.log('Registration response:', data); // DEBUG LINE
+      console.log('New badges:', data.newBadges); // This should show the badges array
+
+      
       localStorage.setItem('medtracker_token', data.token);
       localStorage.setItem('medtracker_user', JSON.stringify(data.user));
-      onRegister();
+      
+      // Store new badges in localStorage to show on home page
+      if (data.newBadges && data.newBadges.length > 0) {
+        localStorage.setItem('pending_badges', JSON.stringify(data.newBadges));
+      }
+      
+      onLogin();
       navigate('/');
     } catch (err) {
+      console.error('Registration error:', err); // DEBUG LINE
       setError(err.response?.data?.error || 'Registration failed');
       setLoading(false);
     }
@@ -111,6 +123,7 @@ function Register({ onRegister }) {
       <p className="auth-redirect">
         Already have an account? <Link to="/login">Log in here</Link>
       </p>
+
     </div>
   );
 }

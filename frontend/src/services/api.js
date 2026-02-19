@@ -32,6 +32,20 @@ export const getCurrentUser = async () => {
   return response.data;
 };
 
+// ---- BADGE ROUTES ----
+
+// Get user badges
+export const getUserBadges = async () => {
+  const response = await axios.get(`${API_URL}/badges`, authHeaders());
+  return response.data.badges;
+};
+
+// Get user streak
+export const getUserStreak = async () => {
+  const response = await axios.get(`${API_URL}/streak`, authHeaders());
+  return response.data.streak;
+};
+
 // ---- MEDICATION ROUTES ----
 
 // Get all medications

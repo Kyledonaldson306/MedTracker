@@ -3,11 +3,12 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('./database');
+const badgeService = require('./badgeService');
 
 const JWT_SECRET = 'medtracker_secret_key_change_in_production';
 
 // Register a new user
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
 
   // Validation
@@ -50,17 +51,37 @@ router.post('/register', (req, res) => {
           return res.status(500).json({ error: err.message });
         }
 
+        const newUserId = this.lastID;
+
         // Generate token
         const token = jwt.sign(
-          { userId: this.lastID, username, email },
+          { userId: newUserId, username, email },
           JWT_SECRET,
           { expiresIn: '7d' }
         );
 
-        res.json({
-          message: 'Registration successful',
-          token,
-          user: { id: this.lastID, username, email }
+        // Update login streak and award first login badge
+        const badgeService = require('./badgeService');
+        badgeService.updateLoginStreak(newUserId, (err, streakData) => {
+          if (err) {
+            console.error('Error updating streak:', err);
+            // Still return success even if badge fails
+            return res.json({
+              message: 'Registration successful',
+              token,
+              user: { id: newUserId, username, email },
+              streak: 1,
+              newBadges: []
+            });
+          }
+
+          res.json({
+            message: 'Registration successful',
+            token,
+            user: { id: newUserId, username, email },
+            streak: streakData?.streak || 1,
+            newBadges: streakData?.newBadges || []
+          });
         });
       });
     });
@@ -98,10 +119,28 @@ router.post('/login', (req, res) => {
       { expiresIn: '7d' }
     );
 
-    res.json({
-      message: 'Login successful',
-      token,
-      user: { id: user.id, username: user.username, email: user.email }
+    // Update login streak and check for new badges
+    const badgeService = require('./badgeService');
+    badgeService.updateLoginStreak(user.id, (err, streakData) => {
+      if (err) {
+        console.error('Error updating streak:', err);
+        // Still return success even if badge fails
+        return res.json({
+          message: 'Login successful',
+          token,
+          user: { id: user.id, username: user.username, email: user.email },
+          streak: 0,
+          newBadges: []
+        });
+      }
+
+      res.json({
+        message: 'Login successful',
+        token,
+        user: { id: user.id, username: user.username, email: user.email },
+        streak: streakData?.streak || 0,
+        newBadges: streakData?.newBadges || []
+      });
     });
   });
 });

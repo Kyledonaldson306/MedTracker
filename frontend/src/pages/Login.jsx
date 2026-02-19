@@ -7,7 +7,7 @@ function Login({ onLogin }) {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
+  
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError('');
@@ -17,10 +17,16 @@ function Login({ onLogin }) {
     e.preventDefault();
     setLoading(true);
 
-    try {
+        try {
       const data = await login(formData);
       localStorage.setItem('medtracker_token', data.token);
       localStorage.setItem('medtracker_user', JSON.stringify(data.user));
+      
+      // Store new badges in localStorage to show on home page
+      if (data.newBadges && data.newBadges.length > 0) {
+        localStorage.setItem('pending_badges', JSON.stringify(data.newBadges));
+      }
+      
       onLogin();
       navigate('/');
     } catch (err) {
@@ -71,6 +77,7 @@ function Login({ onLogin }) {
       <p className="auth-redirect">
         Don't have an account? <Link to="/register">Sign up here</Link>
       </p>
+
     </div>
   );
 }
