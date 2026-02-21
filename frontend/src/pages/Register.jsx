@@ -58,7 +58,8 @@ function Register({ onLogin }) {
   };
 
   return (
-    <div className="container">
+    <div className="app-shell"> {/* Added this wrapper */}
+      <div className="container" style={{ maxWidth: '450px' }}> {/* Added a maxWidth inline or in CSS */}
       <div className="header">
         <h1>MedTracker</h1>
         <p>Create your account to get started</p>
@@ -125,6 +126,7 @@ function Register({ onLogin }) {
       </p>
 
     </div>
+  </div>
   );
 }
 
